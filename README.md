@@ -84,7 +84,6 @@ This analyzes the relationship between departure and arrival delays. There is a 
 
 <iframe src="assets/fig3.html" width="700" height="400" frameborder="0"></iframe>
  
-
 **Late-Flight Rate by Day of Week**  
 This analyzes the percentage of flights arriving at least 15 minutes late, broken down by day of week. Flights on Saturdays and Sundays are most likely to be late, while Tuesdays are least likely.
 
