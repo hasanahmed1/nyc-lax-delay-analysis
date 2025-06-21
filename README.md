@@ -1,7 +1,3 @@
----
-title: "Analyzing NYC to LAX Flight Delays"
----
-
 # Analyzing NYC to LAX Flight Delays
 
 **Author:** Hasan Ahmed  
