@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Analyzing NYC to LAX Flight Delays | nyc-lax-delay-analysis</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="Analyzing NYC to LAX Flight Delays" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="EECS 398 final project: exploratory analysis and delay prediction for NYC→LAX flights." />
+<meta property="og:description" content="EECS 398 final project: exploratory analysis and delay prediction for NYC→LAX flights." />
+<link rel="canonical" href="http://localhost:4000/README.html" />
+<meta property="og:url" content="http://localhost:4000/README.html" />
+<meta property="og:site_name" content="nyc-lax-delay-analysis" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Analyzing NYC to LAX Flight Delays" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","description":"EECS 398 final project: exploratory analysis and delay prediction for NYC→LAX flights.","headline":"Analyzing NYC to LAX Flight Delays","url":"http://localhost:4000/README.html"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <link rel="stylesheet" href="/assets/css/style.css?v=1b101b7687d78c8080b5cfc7a57db8e28e0ea531">
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+    <script src="/assets/js/respond.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <link rel="stylesheet" href="/assets/css/ie.css">
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
+
+<!-- Setup theme-color -->
+<!-- start theme color meta headers -->
+<meta name="theme-color" content="#353535">
+<meta name="msapplication-navbutton-color" content="#353535">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<!-- end theme color meta headers -->
+
+
+<!-- Setup Google Analytics -->
+
+
+
+<!-- You can set your favicon here -->
+<!-- link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" -->
+
+<!-- end custom head snippets -->
+
+  </head>
+  <body>
+      <div id="header">
+        <nav>
+          <ul>
+            <li class="fork"><a href="https://github.com/hasanahmed1/nyc-lax-delay-analysis">View On GitHub</a></li>
+            
+          </ul>
+        </nav>
+      </div><!-- end header -->
+
+    <div class="wrapper">
+
+      <section>
+        <div id="title">
+          <h1>nyc-lax-delay-analysis</h1>
+          <p>EECS 398 final project: exploratory analysis and delay prediction for NYC→LAX flights.</p>
+          <hr>
+          <span class="credits left">Project maintained by <a href="https://github.com/hasanahmed1">hasanahmed1</a></span>
+          <span class="credits right">Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/mattgraham">mattgraham</a></span>
+        </div>
+
+        <h1 id="analyzing-nyc-to-lax-flight-delays">Analyzing NYC to LAX Flight Delays</h1>
+
+<p><strong>Author:</strong> Hasan Ahmed<br />
+<strong>Email:</strong> hasahmed@umich.edu</p>
+
+<h2 id="introduction">Introduction</h2>
+
+<p>In this project, I analyze how often nonstop flights from New York City (JFK, LGA, EWR) to Los Angeles (LAX) arrive on schedule, using data from the U.S. Department of Transportation’s Bureau of Transportation Statistics (BTS). The full Q1 2025 BTS dataset originally includes roughly 1.5 Million records and 119 columns for all U.S. domestic flights. After filtering out cancelled and diverted flights and keeping only NYC→LAX nonstop service, I’m left with <strong>3,326 rows</strong> and <strong>119 columns</strong>.</p>
+
+<p>My focus is on the following key columns:</p>
+
+<ul>
+  <li><strong><code class="language-plaintext highlighter-rouge">FlightDate</code></strong>: Date of flight (YYYY-MM-DD)</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">DayOfWeek</code></strong>: Day of week (1 = Monday … 7 = Sunday)</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">DepTimeBlk</code></strong>: Scheduled departure window (e.g. “0600–0659”)</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">IATA_Code_Marketing_Airline</code></strong>: Marketing carrier code on the ticket</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">DepDelay</code></strong>: Departure delay in minutes (negative = early)</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">ArrDelay</code></strong>: Arrival delay in minutes (negative = early)</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">ArrDel15</code></strong>: Late-flag (1 if arrival ≥ 15 min late; 0 otherwise)</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">TaxiOut</code></strong>: Minutes spent taxiing before takeoff</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">CarrierDelay</code></strong>: Minutes of delay attributed to the airline</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">WeatherDelay</code></strong>: Minutes of delay caused by weather conditions</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">NASDelay</code></strong>: Minutes of delay due to the National Airspace System</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">SecurityDelay</code></strong>: Minutes of delay for security reasons</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">LateAircraftDelay</code></strong>: Minutes of delay because the incoming aircraft was late</li>
+</ul>
+
+<p>The IATA codes used throughout this report are:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>IATA Code</th>
+      <th>Airline</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">AA</code></td>
+      <td>American Airlines</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">AS</code></td>
+      <td>Alaska Airlines</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">B6</code></td>
+      <td>JetBlue Airways</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">DL</code></td>
+      <td>Delta Air Lines</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">NK</code></td>
+      <td>Spirit Airlines</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">UA</code></td>
+      <td>United Airlines</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h3 id="central-question">Central question</h3>
+
+<blockquote>
+  <p>On the NYC→LAX route, which airlines and departure-time factors (day of week or departure window) are most useful for predicting a flight arriving at least 15 minutes late?</p>
+</blockquote>
+
+<p>Those insights can help airlines improve their schedules and give travelers a clearer idea of what to expect on one of America’s busiest cross-country routes.</p>
+
+<h2 id="data-cleaning-and-exploratory-data-analysis">Data Cleaning and Exploratory Data Analysis</h2>
+
+<p>I started by loading the January, February and March CSVs into one Q1 2025 dataset, which had around 1.5 million rows and 119 columns. I kept only nonstop flights from JFK, LGA and EWR to LAX. I also dropped any flights that were cancelled or diverted, where <code class="language-plaintext highlighter-rouge">Cancelled == 1</code> or <code class="language-plaintext highlighter-rouge">Diverted == 1</code>, leaving me with <strong>3,326</strong> completed flights. I used (<code class="language-plaintext highlighter-rouge">df.isna().sum()</code>) to check for missing values, but found none in the columns of interest.</p>
+
+<p>Next, I made sure each column was in the right format:</p>
+<ul>
+  <li>Parsed <code class="language-plaintext highlighter-rouge">FlightDate</code> to a pandas datetime (MM/DD/YY)</li>
+  <li>Cast <code class="language-plaintext highlighter-rouge">DepDelay</code> and <code class="language-plaintext highlighter-rouge">ArrDelay</code> to floats</li>
+  <li>Converted <code class="language-plaintext highlighter-rouge">ArrDel15</code> into an integer flag (0/1)</li>
+</ul>
+
+<p>These are the first five rows of the cleaned dataset:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: right">FlightDate</th>
+      <th style="text-align: center">DayOfWeek</th>
+      <th style="text-align: center">DepTimeBlk</th>
+      <th style="text-align: center">IATA_Code_Marketing_Airline</th>
+      <th style="text-align: right">DepDelay</th>
+      <th style="text-align: right">ArrDelay</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: right">2025-01-01</td>
+      <td style="text-align: center">3</td>
+      <td style="text-align: center">1800–1859</td>
+      <td style="text-align: center">DL</td>
+      <td style="text-align: right">50.0</td>
+      <td style="text-align: right">79.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: right">2025-01-02</td>
+      <td style="text-align: center">4</td>
+      <td style="text-align: center">1800–1859</td>
+      <td style="text-align: center">DL</td>
+      <td style="text-align: right">178.0</td>
+      <td style="text-align: right">157.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: right">2025-01-03</td>
+      <td style="text-align: center">5</td>
+      <td style="text-align: center">1800–1859</td>
+      <td style="text-align: center">DL</td>
+      <td style="text-align: right">-3.0</td>
+      <td style="text-align: right">-16.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: right">2025-01-04</td>
+      <td style="text-align: center">6</td>
+      <td style="text-align: center">1800–1859</td>
+      <td style="text-align: center">DL</td>
+      <td style="text-align: right">8.0</td>
+      <td style="text-align: right">16.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: right">2025-01-05</td>
+      <td style="text-align: center">7</td>
+      <td style="text-align: center">1800–1859</td>
+      <td style="text-align: center">DL</td>
+      <td style="text-align: right">-1.0</td>
+      <td style="text-align: right">-8.0</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<p><strong>Arrival Delay Distribution</strong><br />
+Most flights arrive within ±15 minutes of schedule, with the bulk clustered around zero and a noticeable spread of non-outlier delays in the 15–60 minute range. A small number of individual flights stand out as extreme outliers, with multi-hour arrival delays stretching the distribution far to the right.</p>
+
+<iframe src="assets/fig1.html" width="700" height="400" frameborder="0"></iframe>
+
+<p><strong>Flights per Carrier</strong><br />
+American Airlines, JetBlue, Delta Airlines, and United Airlines operated the most flights on this route in Q1 2025, with Alaska Airlines and Spirit Airlines flying significantly fewer.</p>
+
+<iframe src="assets/fig2.html" width="700" height="400" frameborder="0"></iframe>
+
+<p><strong>Departure vs. Arrival Delay</strong><br />
+This analyzes the relationship between departure and arrival delays. There is a strong positive correlation, indicating that flights with departure delays tend to arrive late as well.</p>
+
+<iframe src="assets/fig3.html" width="700" height="400" frameborder="0"></iframe>
+
+<p><strong>Late-Flight Rate by Day of Week</strong><br />
+This analyzes the percentage of flights arriving at least 15 minutes late, broken down by day of week. Flights on Saturdays and Sundays are most likely to be late, while Tuesdays are least likely.</p>
+
+<iframe src="assets/fig4.html" width="700" height="400" frameborder="0"></iframe>
+
+<hr />
+
+<p><strong>Average Arrival Delay by Carrier &amp; Month</strong><br />
+In January and March, carriers were generally early. However, in February almost all carriers were late, with American Airlines and United Airlines being the most affected.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">Carrier</th>
+      <th style="text-align: right">January</th>
+      <th style="text-align: right">February</th>
+      <th style="text-align: right">March</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">AA</td>
+      <td style="text-align: right">–12.9</td>
+      <td style="text-align: right">12.2</td>
+      <td style="text-align: right">–4.8</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">AS</td>
+      <td style="text-align: right">–4.5</td>
+      <td style="text-align: right">–7.5</td>
+      <td style="text-align: right">–14.8</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">B6</td>
+      <td style="text-align: right">–11.9</td>
+      <td style="text-align: right">1.8</td>
+      <td style="text-align: right">–12.6</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">DL</td>
+      <td style="text-align: right">–3.8</td>
+      <td style="text-align: right">5.7</td>
+      <td style="text-align: right">–6.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">NK</td>
+      <td style="text-align: right">–7.8</td>
+      <td style="text-align: right">1.1</td>
+      <td style="text-align: right">–21.2</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">UA</td>
+      <td style="text-align: right">3.5</td>
+      <td style="text-align: right">10.2</td>
+      <td style="text-align: right">–10.2</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="framing-a-prediction-problem">Framing a Prediction Problem</h2>
+
+<p>I’m treating this as a <strong>predictive</strong> modeling task: at the moment of pushback, I want to estimate if a flight will arrive at least 15 minutes late. The response variable is <code class="language-plaintext highlighter-rouge">ArrDel15</code> (1 = late, 0 = on-time), which directly corresponds to the binary outcome passengers care about.</p>
+
+<p>Because there are only two possible outcomes, it’s a <strong>binary classification</strong> problem with imbalanced classes (late flights are roughly 20–25 % of the data). I’ll use <strong>F1-score</strong> as my primary metric since it balances precision by avoiding false “late” warnings and recall, catching as many true late flights as possible, which is more informative than raw accuracy on skewed classes.</p>
+
+<p>All features are known at or before departure:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">DepDelay</code> (minutes late at pushback)</li>
+  <li><code class="language-plaintext highlighter-rouge">DayOfWeek</code> (1 = Monday … 7 = Sunday, to capture weekly cycles)</li>
+  <li><code class="language-plaintext highlighter-rouge">DepTimeBlk</code> (scheduled departure block, e.g. “0600–0659,” to capture rush-hours and red-eyes)</li>
+  <li><code class="language-plaintext highlighter-rouge">TaxiOut</code> (ground delay before takeoff, reflecting airport congestion)</li>
+  <li><code class="language-plaintext highlighter-rouge">IATA_Code_Marketing_Airline</code> (marketing carrier code, to capture airline-specific performance)</li>
+</ul>
+
+<p>I’ll split the cleaned data 80/20 (stratified on <code class="language-plaintext highlighter-rouge">ArrDel15</code>, <code class="language-plaintext highlighter-rouge">random_state=42</code>) so the test set retains the same late-flight rate, giving a realistic evaluation of how the model might perform in production.</p>
+
+<h2 id="baseline-model">Baseline Model</h2>
+
+<p>For our baseline, I used a <strong>Random Forest classifier</strong> with just two predictors:</p>
+
+<ul>
+  <li><strong>Quantitative (numeric)</strong>
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">DepDelay</code> (minutes late at departure)</li>
+    </ul>
+  </li>
+  <li><strong>Nominal (categorical)</strong>
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">IATA_Code_Marketing_Airline</code> (one-hot encoded into six carrier columns: AA, AS, B6, DL, NK, UA)</li>
+    </ul>
+  </li>
+</ul>
+
+<p>No ordinal features were included at this stage. In the preprocessing pipeline, <code class="language-plaintext highlighter-rouge">DepDelay</code> was passed through unchanged, while the carrier codes were transformed into dummy variables via <code class="language-plaintext highlighter-rouge">OneHotEncoder(handle_unknown='ignore')</code>. The full pipeline was built with scikit-learn’s <code class="language-plaintext highlighter-rouge">ColumnTransformer</code> and left all default Random Forest hyperparameters intact.</p>
+
+<p>I split the cleaned data into an 80/20 train/test set with <code class="language-plaintext highlighter-rouge">random_state=42</code> and <code class="language-plaintext highlighter-rouge">stratify=y</code> to preserve the late-flight ratio in both sets. On the test set of 666 flights, the classifier achieved:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">Class</th>
+      <th style="text-align: center">Precision</th>
+      <th style="text-align: center">Recall</th>
+      <th style="text-align: center">F1-score</th>
+      <th style="text-align: center">Support</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center"><strong>0 (on-time)</strong></td>
+      <td style="text-align: center">0.90</td>
+      <td style="text-align: center">0.97</td>
+      <td style="text-align: center">0.93</td>
+      <td style="text-align: center">550</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><strong>1 (late ≥15)</strong></td>
+      <td style="text-align: center">0.79</td>
+      <td style="text-align: center">0.47</td>
+      <td style="text-align: center">0.59</td>
+      <td style="text-align: center">116</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><strong>Accuracy</strong></td>
+      <td style="text-align: center"> </td>
+      <td style="text-align: center"> </td>
+      <td style="text-align: center">0.89</td>
+      <td style="text-align: center">666</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><strong>Macro avg</strong></td>
+      <td style="text-align: center">0.85</td>
+      <td style="text-align: center">0.72</td>
+      <td style="text-align: center">0.76</td>
+      <td style="text-align: center">666</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><strong>Weighted avg</strong></td>
+      <td style="text-align: center">0.88</td>
+      <td style="text-align: center">0.89</td>
+      <td style="text-align: center">0.87</td>
+      <td style="text-align: center">666</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Although overall accuracy is high (0.89), the model only detects 47% of late flights (recall for class 1). This low recall means it misses more than half of the delayed flights, which isn’t acceptable. The decent precision (0.79) indicates the few “late” predictions it does make tend to be correct, but we need a more balanced trade-off, especially raising recall, before calling this model “good.”</p>
+
+<h2 id="final-model">Final Model</h2>
+
+<h3 id="feature-engineering">Feature Engineering</h3>
+<ul>
+  <li><strong>Cyclical departure hour</strong> (<code class="language-plaintext highlighter-rouge">Hour_sin</code>, <code class="language-plaintext highlighter-rouge">Hour_cos</code>)<br />
+By converting the scheduled hour into sine and cosine, the model can recognize that 23:00–00:00 is “close” in time to 00:00–01:00, capturing red-eye vs. rush-hour patterns without breaking the circular nature of the clock.</li>
+  <li><strong>Rolling average departure delay by carrier</strong> (<code class="language-plaintext highlighter-rouge">Carrier_avg_depdelay</code>)<br />
+Airlines often carry over delays from one flight to the next. An expanding-window mean of <code class="language-plaintext highlighter-rouge">DepDelay</code> per carrier helps the model see recent punctuality trends (e.g if Delta had many delayed flights in the morning, its afternoon flights may also be delayed).</li>
+</ul>
+
+<hr />
+
+<h3 id="algorithm--hyperparameter-tuning">Algorithm &amp; Hyperparameter Tuning</h3>
+<p>I used a <strong>RandomForestClassifier</strong> and ran a 5-fold <code class="language-plaintext highlighter-rouge">GridSearchCV</code> over:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">n_estimators</code>: 100, 200</li>
+  <li><code class="language-plaintext highlighter-rouge">max_depth</code>: 10, 20, None</li>
+</ul>
+
+<p><strong>Best parameters</strong></p>
+<ul>
+  <li>n_estimators = 100</li>
+  <li>max_depth    = 10</li>
+</ul>
+
+<hr />
+
+<h3 id="final-vs-baseline-performance">Final vs. Baseline Performance</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">Model</th>
+      <th style="text-align: center">Accuracy</th>
+      <th style="text-align: center">Recall (late)</th>
+      <th style="text-align: center">F1 (late)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">Baseline</td>
+      <td style="text-align: center">0.89</td>
+      <td style="text-align: center">0.47</td>
+      <td style="text-align: center">0.59</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">Final</td>
+      <td style="text-align: center">1.00</td>
+      <td style="text-align: center">1.00</td>
+      <td style="text-align: center">1.00</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Confusion Matrix</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th>Predicted On-time</th>
+      <th>Predicted Late</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Actual On-time</strong></td>
+      <td>550</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td><strong>Actual Late</strong></td>
+      <td>0</td>
+      <td>116</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The final model catches every late flight (116/116) without any false positives. This is a very good improvement over the baseline’s initial 47% recall.</p>
+
+<hr />
+
+<h3 id="pipeline-structure">Pipeline Structure</h3>
+<p><img src="assets/pipeline_diagram.png" alt="Final Pipeline Diagram" /><br />
+This diagram shows the full preprocessing (scaling numeric features, passing through cyclical and proportion features, one-hot encoding categorical fields) followed by the tuned Random Forest classifier.</p>
+
+
+      </section>
+
+    </div>
+  </body>
+</html>
